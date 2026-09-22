@@ -82,7 +82,8 @@ export default function Home() {{
 ''')
 EOF
 cp design/SPEC_TEMPLATE.md design/spec.md
-touch tests/e2e/.gitkeep loadtest/.gitkeep design/contracts/openapi/.gitkeep design/contracts/db/.gitkeep
+mkdir -p tests/e2e loadtest design/contracts/openapi design/contracts/db design/contracts/events
+touch tests/e2e/.gitkeep loadtest/.gitkeep design/contracts/openapi/.gitkeep design/contracts/db/.gitkeep design/contracts/events/.gitkeep
 
 if [ -n "$diagram" ]; then
   cp "$diagram" design/diagram.excalidraw
