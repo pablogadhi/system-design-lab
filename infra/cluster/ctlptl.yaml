@@ -1,0 +1,52 @@
+# Local multi-node cluster + image registry, managed by ctlptl (https://github.com/tilt-dev/ctlptl).
+#
+#   make up / make down   (never run kind directly — ctlptl wires the registry into every node)
+#
+# Topology: 1 control plane + 4 workers spread over 3 simulated availability zones.
+#   zone-a: sdl-worker, sdl-worker4   (two nodes -> lets you lose a node without losing the zone)
+#   zone-b: sdl-worker2
+#   zone-c: sdl-worker3
+# Workloads use topologySpreadConstraints on topology.kubernetes.io/zone, so "lose a node" and
+# "lose a zone" (scripts/chaos/node-down.sh) are both meaningful experiments.
+#
+# The Envoy gateway is exposed as NodePort 30080 and mapped to http://localhost:8080 on the host.
+apiVersion: ctlptl.dev/v1alpha1
+kind: Registry
+name: sdl-registry
+port: 5005
+---
+apiVersion: ctlptl.dev/v1alpha1
+kind: Cluster
+name: kind-sdl
+product: kind
+registry: sdl-registry
+kindV1Alpha4Cluster:
+  name: sdl
+  nodes:
+    - role: control-plane
+      image: kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5
+      extraPortMappings:
+        - containerPort: 30080   # gateway http
+          hostPort: 8080
+          listenAddress: "127.0.0.1"
+          protocol: TCP
+    - role: worker
+      image: kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5
+      labels:
+        topology.kubernetes.io/region: local
+        topology.kubernetes.io/zone: zone-a
+    - role: worker
+      image: kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5
+      labels:
+        topology.kubernetes.io/region: local
+        topology.kubernetes.io/zone: zone-b
+    - role: worker
+      image: kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5
+      labels:
+        topology.kubernetes.io/region: local
+        topology.kubernetes.io/zone: zone-c
+    - role: worker
+      image: kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5
+      labels:
+        topology.kubernetes.io/region: local
+        topology.kubernetes.io/zone: zone-a

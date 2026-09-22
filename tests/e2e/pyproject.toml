@@ -1,0 +1,12 @@
+[project]
+name = "sdl-e2e"
+version = "0.0.0"
+description = "Acceptance flows from design/spec.md, run against the live cluster through the gateway"
+requires-python = ">=3.12"
+dependencies = ["pytest>=8.3", "httpx>=0.28"]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+addopts = "-p no:cacheprovider"

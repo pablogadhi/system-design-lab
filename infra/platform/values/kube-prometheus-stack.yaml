@@ -1,0 +1,56 @@
+# Trimmed for a laptop: no alertmanager, no control-plane scrapes that kind doesn't expose.
+fullnameOverride: kps
+
+alertmanager:
+  enabled: false
+kubeEtcd:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+kubeProxy:
+  enabled: false
+
+defaultRules:
+  create: false
+
+prometheus:
+  prometheusSpec:
+    retention: 12h
+    scrapeInterval: 15s
+    # pick up every ServiceMonitor/PodMonitor in the cluster, not only ones labelled for this release
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+    probeSelectorNilUsesHelmValues: false
+    resources:
+      requests: { cpu: 200m, memory: 512Mi }
+      limits: { memory: 2Gi }
+
+prometheusOperator:
+  resources:
+    requests: { cpu: 50m, memory: 128Mi }
+    limits: { memory: 256Mi }
+
+prometheus-node-exporter:
+  # Docker Desktop's VM root mount is not shared/slave; mounting it breaks node-exporter.
+  hostRootFsMount:
+    enabled: false
+
+grafana:
+  adminUser: admin
+  adminPassword: admin
+  grafana.ini:
+    server:
+      root_url: http://grafana.localhost:8080
+    auth.anonymous:
+      enabled: true
+      org_role: Viewer
+  sidecar:
+    dashboards:
+      # components can ship dashboards as ConfigMaps labelled grafana_dashboard: "1" in any namespace
+      searchNamespace: ALL
+  resources:
+    requests: { cpu: 50m, memory: 128Mi }
+    limits: { memory: 512Mi }

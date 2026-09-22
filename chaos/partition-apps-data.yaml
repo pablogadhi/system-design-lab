@@ -1,0 +1,20 @@
+# Network partition: app pods in zone-b cannot reach the data tier for 2 minutes.
+# Expect: their /readyz fails -> the gateway stops routing to them; other zones keep serving.
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: partition-apps-data
+  namespace: chaos-mesh
+spec:
+  action: partition
+  mode: all
+  selector:
+    namespaces: [apps]
+    nodeSelectors:
+      topology.kubernetes.io/zone: zone-b
+  direction: both   # "to" alone misses Service (ClusterIP) traffic; see chaos/README.md
+  target:
+    mode: all
+    selector:
+      namespaces: [data]
+  duration: 2m

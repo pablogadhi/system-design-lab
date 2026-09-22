@@ -1,0 +1,18 @@
+# Kill the Postgres primary. CloudNativePG promotes a replica (usually < 30s).
+# Try it under load:   make load &  sleep 15 && make chaos E=postgres-primary-kill
+# Watch:               kubectl -n data get pods -L cnpg.io/instanceRole -w
+# Expect:              a burst of failed writes during failover, reads from replicas unaffected,
+#                      `make e2e` green again afterwards.
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: postgres-primary-kill
+  namespace: chaos-mesh
+spec:
+  action: pod-kill
+  mode: one
+  selector:
+    namespaces: [data]
+    labelSelectors:
+      cnpg.io/cluster: postgres
+      cnpg.io/instanceRole: primary

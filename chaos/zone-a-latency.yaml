@@ -1,0 +1,24 @@
+# Add 100ms (+/-20ms) latency to traffic from app pods in zone-a to the data tier, for 5 minutes.
+# Simulates a degraded cross-AZ link: compare p95 in `make load` with and without it.
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: zone-a-latency
+  namespace: chaos-mesh
+spec:
+  action: delay
+  mode: all
+  selector:
+    namespaces: [apps]
+    nodeSelectors:
+      topology.kubernetes.io/zone: zone-a
+  direction: both   # "to" alone misses Service (ClusterIP) traffic; see chaos/README.md
+  target:
+    mode: all
+    selector:
+      namespaces: [data]
+  delay:
+    latency: 100ms
+    jitter: 20ms
+    correlation: "25"
+  duration: 5m

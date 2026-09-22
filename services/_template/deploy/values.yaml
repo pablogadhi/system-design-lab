@@ -1,0 +1,10 @@
+# Overrides for infra/charts/app (see its values.yaml for every option)
+replicas: 2
+connections: []                  # e.g. [postgres, kafka] -> POSTGRES_*, KAFKA_* env vars
+route:
+  enabled: true
+  pathPrefix: /api/__SERVICE__   # http://localhost:8080/api/__SERVICE__/...
+# Workers that serve no public HTTP API: set route.enabled=false (they still expose /healthz, /readyz, /metrics)
+# migrations:
+#   enabled: true
+#   command: ["python", "-m", "sdl_common.migrate", "__MODULE__.migrations"]

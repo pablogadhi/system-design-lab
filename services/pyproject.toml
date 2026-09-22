@@ -1,0 +1,26 @@
+# uv workspace for every Python service in this lab.
+#   make test                 -> unit tests for all members (no cluster needed)
+#   make new-service N=<name> -> scaffold from _template and add it here
+[tool.uv.workspace]
+members = ["libs/*", "sample-api"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "httpx>=0.28",
+    "pyyaml>=6.0",
+    "ruff>=0.8",
+]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "ASYNC"]
+
+[tool.pytest.ini_options]
+addopts = "--import-mode=importlib"
+asyncio_mode = "auto"
+norecursedirs = ["_template", ".venv", "node_modules"]

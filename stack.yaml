@@ -1,0 +1,18 @@
+# What this design runs.
+#   make up      -> creates the cluster, installs the platform, then each component below (in order)
+#   make dev/ci  -> Tilt builds + deploys the services, pipelines and client below
+#
+# Components live in infra/components/<name>/ (see AUTHORING.md). If a component you need is
+# missing, the infra-builder agent creates it following AUTHORING.md + PLAYBOOK.md.
+name: sample
+
+components:
+  - name: postgres
+    profile: ha        # small = 1 instance | ha = 3 instances across zones (see component README)
+
+services:              # services/<name>/ — FastAPI apps deployed with infra/charts/app
+  - sample-api
+
+pipelines: []          # pipelines/<name>/ — stream jobs (e.g. Flink)
+
+client: true           # client/ — Next.js demo app, served at http://localhost:8080/

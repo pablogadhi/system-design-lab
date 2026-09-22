@@ -1,0 +1,62 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "https://excalidraw.com",
+  "elements": [
+    {"id": "F", "type": "frame", "name": "Ingest", "x": 0, "y": 0, "width": 1000, "height": 400},
+
+    {"id": "gw", "type": "rectangle", "x": 20, "y": 50, "width": 120, "height": 60, "frameId": "F",
+     "boundElements": [{"id": "t_gw", "type": "text"}, {"id": "a1", "type": "arrow"}, {"id": "a4", "type": "arrow"}]},
+    {"id": "t_gw", "type": "text", "x": 30, "y": 70, "width": 100, "height": 20, "containerId": "gw",
+     "text": "API Gateway", "originalText": "API Gateway", "frameId": "F"},
+
+    {"id": "pool", "type": "rectangle", "x": 200, "y": 20, "width": 300, "height": 300, "frameId": "F"},
+    {"id": "t_pool", "type": "text", "x": 210, "y": 30, "width": 150, "height": 20,
+     "text": "Click Receiver pool", "originalText": "Click Receiver pool", "frameId": "F"},
+
+    {"id": "r1", "type": "rectangle", "x": 220, "y": 80, "width": 120, "height": 60, "frameId": "F",
+     "boundElements": [{"id": "t_r1", "type": "text"}]},
+    {"id": "t_r1", "type": "text", "x": 230, "y": 100, "width": 100, "height": 20, "containerId": "r1",
+     "text": "Click Receiver", "originalText": "Click Receiver"},
+    {"id": "r2", "type": "rectangle", "x": 220, "y": 200, "width": 120, "height": 60, "frameId": "F",
+     "groupIds": ["g1"], "boundElements": [{"id": "t_r2", "type": "text"}]},
+    {"id": "t_r2", "type": "text", "x": 230, "y": 220, "width": 100, "height": 20, "containerId": "r2",
+     "text": "Click Receiver", "originalText": "Click Receiver"},
+
+    {"id": "kafka", "type": "rectangle", "x": 600, "y": 80, "width": 120, "height": 60, "frameId": "F",
+     "groupIds": ["g1"], "boundElements": [{"id": "t_k", "type": "text"}]},
+    {"id": "t_k", "type": "text", "x": 610, "y": 100, "width": 100, "height": 20, "containerId": "kafka",
+     "text": "Kafka", "originalText": "Kafka"},
+
+    {"id": "db", "type": "ellipse", "x": 600, "y": 500, "width": 120, "height": 80},
+    {"id": "t_db", "type": "text", "x": 640, "y": 530, "width": 30, "height": 20,
+     "text": "DB", "originalText": "DB"},
+    {"id": "t_db_tables", "type": "text", "x": 610, "y": 550, "width": 90, "height": 20,
+     "text": "Tables:\nClick(id, ad_id)", "originalText": "Tables:\nClick(id, ad_id)"},
+
+    {"id": "a1", "type": "arrow", "x": 140, "y": 80, "width": 80, "height": 0,
+     "points": [[0, 0], [80, 0]], "startBinding": {"elementId": "gw"}, "endBinding": {"elementId": "r1"},
+     "startArrowhead": null, "endArrowhead": "arrow"},
+    {"id": "t_a1", "type": "text", "x": 150, "y": 60, "width": 60, "height": 20, "containerId": "a1",
+     "text": "POST /click", "originalText": "POST /click"},
+
+    {"id": "a2", "type": "arrow", "x": 340, "y": 110, "width": 250, "height": 0,
+     "points": [[0, 0], [250, 0]], "startBinding": {"elementId": "r1"}, "endBinding": null,
+     "startArrowhead": null, "endArrowhead": "arrow"},
+
+    {"id": "a3", "type": "arrow", "x": 660, "y": 140, "width": 0, "height": 360,
+     "points": [[0, 0], [0, 360]], "startBinding": {"elementId": "kafka"}, "endBinding": {"elementId": "db"},
+     "startArrowhead": null, "endArrowhead": "triangle"},
+
+    {"id": "a4", "type": "arrow", "x": 600, "y": 540, "width": 520, "height": 440,
+     "points": [[0, 0], [-520, -440]], "startBinding": {"elementId": "db"}, "endBinding": {"elementId": "gw"},
+     "startArrowhead": "arrow", "endArrowhead": "arrow"},
+
+    {"id": "l1", "type": "line", "x": 0, "y": 450, "width": 900, "height": 0, "points": [[0, 0], [900, 0]]},
+
+    {"id": "note", "type": "text", "x": 20, "y": 700, "width": 300, "height": 40,
+     "text": "Requirements\n- low latency", "originalText": "Requirements\n- low latency"},
+
+    {"id": "gone", "type": "rectangle", "x": 0, "y": 0, "width": 10, "height": 10, "isDeleted": true}
+  ]
+}

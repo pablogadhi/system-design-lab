@@ -1,0 +1,61 @@
+# Defaults for every service. A service overrides these in services/<name>/deploy/values.yaml.
+
+image:
+  repository: ""          # set by the Tiltfile (= service name); Tilt rewrites it to the local registry
+  tag: latest
+  pullPolicy: IfNotPresent
+
+replicas: 2
+port: 8000
+command: []               # empty = image CMD (services: `python -m <module>`)
+args: []
+
+# Connection contracts. Each entry mounts Secret <name>-conn (namespace apps) as env vars
+# prefixed with the upper-cased name:  postgres -> POSTGRES_URL, POSTGRES_HOST, ...
+#                                      kafka    -> KAFKA_BOOTSTRAP_SERVERS
+connections: []
+
+env: {}                   # extra plain env vars: { NAME: value }
+
+resources:
+  requests: { cpu: 50m, memory: 128Mi }
+  limits: { memory: 256Mi }
+
+probes:
+  enabled: true
+  liveness: /healthz      # process is alive (never checks dependencies)
+  readiness: /readyz      # dependencies reachable -> receives traffic
+
+# Public route through the gateway (http://localhost:8080<pathPrefix>)
+route:
+  enabled: false
+  pathPrefix: ""          # e.g. /api/sample-api
+  stripPrefix: true       # service sees "/" instead of the prefix; ROOT_PATH env is set for OpenAPI docs
+  hostnames: []
+  timeout: 15s
+  gateway:
+    name: sdl
+    namespace: envoy-gateway-system
+
+# SQL migrations run as an init container before the app starts (advisory-locked, safe with N replicas)
+migrations:
+  enabled: false
+  command: []             # e.g. ["python", "-m", "sdl_common.migrate", "sample_api.migrations"]
+
+topologySpread: true      # spread replicas across zones
+pdb:
+  enabled: true
+  maxUnavailable: 1
+
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 70
+
+serviceMonitor:
+  enabled: true
+  path: /metrics
+
+terminationGracePeriodSeconds: 30
+preStopSleepSeconds: 5    # lets the gateway drop the endpoint before the process stops
