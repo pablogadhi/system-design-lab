@@ -49,7 +49,8 @@ if stack.get('client'):
 # --- acceptance tests (tests/e2e) against the gateway, after everything is up --------------
 local_resource(
     'e2e',
-    cmd='cd tests/e2e && uv run --quiet pytest -q',
+    # exit code 5 = no tests collected (fresh design before the integrator writes them)
+    cmd='cd tests/e2e && { uv run --quiet pytest -q; rc=$?; [ $rc -eq 5 ] && echo "no e2e tests yet" && rc=0; exit $rc; }',
     env={'SDL_GATEWAY_URL': os.getenv('SDL_GATEWAY_URL', 'http://localhost:8080')},
     resource_deps=deployed,
     trigger_mode=TRIGGER_MODE_MANUAL,   # dev: click to run; ci: runs once automatically

@@ -33,7 +33,7 @@ test: ## unit tests: all services + repo scripts (no cluster needed)
 	@python3 -m unittest discover -s scripts/tests -q
 
 e2e: ## acceptance flows against the live cluster
-	@$(ENV) cd tests/e2e && uv run pytest -q
+	@$(ENV) cd tests/e2e && { uv run pytest -q; rc=$$?; [ $$rc -eq 5 ] && echo "no e2e tests yet" && rc=0; exit $$rc; }
 
 load: ## k6 load test (S=<script>, default loadtest/sample.js)
 	@$(ENV) k6 run -e BASE_URL=$$SDL_GATEWAY_URL $(or $(S),loadtest/sample.js)
