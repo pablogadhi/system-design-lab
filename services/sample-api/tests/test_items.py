@@ -4,8 +4,9 @@ from datetime import UTC, datetime
 
 import pytest
 from fastapi.testclient import TestClient
-from sample_api.main import app, get_repo
 from sdl_common.contract import assert_implements_contract
+
+from sample_api.main import app, get_repo
 
 
 class FakeRepo:

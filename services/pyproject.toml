@@ -1,20 +1,22 @@
 # uv workspace for every Python service in this lab.
 #   make test                 -> unit tests for all members (no cluster needed)
-#   make new-service N=<name> -> scaffold from _template and add it here
+#   make new-service N=<name> -> scaffold from _template (picked up by the glob below, no edit needed)
 [tool.uv.workspace]
-members = ["libs/*", "sample-api"]
+members = ["libs/*", "*"]      # every service folder (each needs a pyproject.toml; hidden dirs are ignored)
+exclude = ["libs", "_template", "__pycache__"]
 
 [dependency-groups]
 dev = [
-    "pytest>=8.3",
-    "pytest-asyncio>=0.24",
-    "httpx>=0.28",
-    "pyyaml>=6.0",
-    "ruff>=0.8",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "httpx2>=2.13.1",  # starlette/fastapi TestClient backend (plain httpx is deprecated there)
+    "pyyaml>=6.0.3",
+    "ruff>=0.16.8",
 ]
 
 [tool.ruff]
 line-length = 110
+src = ["*/src"]  # service modules are first-party; sdl_common sorts with third-party
 target-version = "py312"
 
 [tool.ruff.lint]

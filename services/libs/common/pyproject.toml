@@ -4,14 +4,14 @@ version = "0.1.0"
 description = "Shared plumbing for lab services: app factory, health/readiness, logging, metrics, Postgres, migrations"
 requires-python = ">=3.12"
 dependencies = [
-    "fastapi>=0.115",
-    "uvicorn[standard]>=0.32",
-    "pydantic-settings>=2.6",
-    "prometheus-fastapi-instrumentator>=7.0",
+    "fastapi>=0.141.1",
+    "uvicorn[standard]>=0.53.0",
+    "pydantic-settings>=2.15.0",
+    "prometheus-fastapi-instrumentator>=8.1.0",
 ]
 
 [project.optional-dependencies]
-postgres = ["psycopg[binary,pool]>=3.2"]
+postgres = ["psycopg[binary,pool]>=3.3.6"]
 
 [build-system]
 requires = ["hatchling"]

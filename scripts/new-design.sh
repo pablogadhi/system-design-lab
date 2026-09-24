@@ -42,45 +42,12 @@ git rm -rq \
   client/src/api/sample-api.ts \
   design/spec.md
 
-python3 - "$name" <<'EOF'
-import re, sys, pathlib
-name = sys.argv[1]
-p = pathlib.Path("services/pyproject.toml")
-p.write_text(re.sub(r'members = \[.*?\]', 'members = ["libs/*"]', p.read_text(), flags=re.S))
-pathlib.Path("stack.yaml").write_text(f"""# What this design runs — written by the architect step of /build-design (see design/spec.md).
-#   make up      -> creates the cluster, installs the platform, then each component below (in order)
-#   make dev/ci  -> Tilt builds + deploys the services, pipelines and client below
-name: {name}
-
-components: []         # - name: kafka / profile: ha      (infra/components/<name>/)
-
-services: []           # services/<name>/
-
-pipelines: []          # pipelines/<name>/
-
-client: true           # client/
-""")
-pathlib.Path("design/contracts/config.md").write_text("""# Configuration matrix
-
-Which connection contracts and env vars each workload gets (written by the architect).
-`connections:` entries become env vars with a prefix: `postgres` -> `POSTGRES_URL`, ...
-(keys per component: infra/components/AUTHORING.md).
-
-| Workload | connections | extra env | route |
-|---|---|---|---|
-| client | — | — | `/` |
-""")
-pathlib.Path("client/src/app/page.tsx").write_text(f'''// Placeholder — the client-builder agent replaces this with the flows in design/spec.md.
-export default function Home() {{
-  return (
-    <>
-      <h1>{name}</h1>
-      <p className="muted">Nothing here yet. Run /build-design in Claude Code.</p>
-    </>
-  );
-}}
-''')
-EOF
+# starter files (empty stack.yaml, config matrix, placeholder client page) — see the overlay's README
+overlay=scripts/new-design-overlay
+(cd "$overlay" && find . -type f ! -path ./README.md) | while read -r f; do
+  mkdir -p "$(dirname "$f")"
+  sed "s/__NAME__/$name/g" "$overlay/$f" > "$f"
+done
 cp design/SPEC_TEMPLATE.md design/spec.md
 mkdir -p tests/e2e loadtest design/contracts/openapi design/contracts/db design/contracts/events
 touch tests/e2e/.gitkeep loadtest/.gitkeep design/contracts/openapi/.gitkeep design/contracts/db/.gitkeep design/contracts/events/.gitkeep

@@ -8,6 +8,7 @@ and chaos experiments. Nothing is deployed to a cloud. **One design per repo** (
 To build a design from a diagram, run the **`/build-design`** skill (`.claude/skills/build-design/`).
 
 ## Hard rules
+
 - **Never install anything on the host** (no brew/apt/pip --user/npm -g/curl|sh, no sysctl, no
   changing Docker Desktop settings). If a tool or setting is missing, run `make doctor` and report
   what's missing to the user. Everything else (images, charts, venvs, node_modules) lives in Docker
@@ -20,38 +21,41 @@ To build a design from a diagram, run the **`/build-design`** skill (`.claude/sk
 - Pin versions; look them up (context7, `helm search repo`, release pages) — don't guess.
 
 ## Layout and ownership
-| Path | What | Owner |
-|---|---|---|
-| `design/` | diagram (input), `spec.md`, `contracts/` (openapi, events, db, config.md), `RESULTS.md` | architect (orchestrator) |
-| `stack.yaml` | which components / services / pipelines / client this design runs | architect |
-| `infra/cluster/` | kind cluster (1 control plane + 4 workers, zones a/b/c) + local registry | template |
-| `infra/platform/` | Envoy Gateway, cert-manager, metrics-server, Prometheus/Grafana, Chaos Mesh | template |
-| `infra/components/<name>/` | reusable backing infra (postgres, kafka, …) — `AUTHORING.md`, `PLAYBOOK.md` | infra-builder |
-| `infra/design/` | design-specific infra: topics, buckets, extra DBs, gateway policies | infra-builder |
-| `infra/charts/app/` | generic chart for every service + the client | template (infra-builder may extend) |
-| `services/` | uv workspace: `libs/common` (sdl_common), `_template`, one folder per service | services-builder |
-| `pipelines/<name>/` | stream jobs (Flink) with their own `Tiltfile` | services-builder |
-| `client/` | Next.js demo app | client-builder |
-| `tests/e2e/`, `loadtest/`, `chaos/` | acceptance flows, k6 scripts, chaos experiments | integrator |
+
+| Path                                | What                                                                                    | Owner                               |
+| ----------------------------------- | --------------------------------------------------------------------------------------- | ----------------------------------- |
+| `design/`                           | diagram (input), `spec.md`, `contracts/` (openapi, events, db, config.md), `RESULTS.md` | architect (orchestrator)            |
+| `stack.yaml`                        | which components / services / pipelines / client this design runs                       | architect                           |
+| `infra/cluster/`                    | kind cluster (1 control plane + 4 workers, zones a/b/c) + local registry                | template                            |
+| `infra/platform/`                   | Envoy Gateway, cert-manager, metrics-server, Prometheus/Grafana, Chaos Mesh             | template                            |
+| `infra/components/<name>/`          | reusable backing infra (postgres, kafka, …) — `AUTHORING.md`, `PLAYBOOK.md`             | infra-builder                       |
+| `infra/design/`                     | design-specific infra: topics, buckets, extra DBs, gateway policies                     | infra-builder                       |
+| `infra/charts/app/`                 | generic chart for every service + the client                                            | template (infra-builder may extend) |
+| `services/`                         | uv workspace: `libs/common` (sdl_common), `_template`, one folder per service           | services-builder                    |
+| `pipelines/<name>/`                 | stream jobs (Flink) with their own `Tiltfile`                                           | services-builder                    |
+| `client/`                           | Next.js demo app                                                                        | client-builder                      |
+| `tests/e2e/`, `loadtest/`, `chaos/` | acceptance flows, k6 scripts, chaos experiments                                         | integrator                          |
 
 ## Commands
-| | |
-|---|---|
-| `make doctor` | read-only environment check |
-| `make up` / `make down` | cluster + platform + `stack.yaml` components (+ `infra/design/`) / delete cluster |
-| `make smoke [C=<component>]` | component smoke tests (real reads/writes, not just "Running") |
-| `make test` | unit tests for all services + scripts (no cluster) |
-| `make ci` | Tilt headless: build + deploy services/pipelines/client, then run `tests/e2e` |
-| `make dev` | Tilt UI at http://localhost:10350 with rebuild-on-change |
-| `make e2e` · `make load [S=loadtest/x.js]` · `make chaos E=<name>` · `make chaos-clear` | |
-| `make new-service N=<name>` | scaffold a FastAPI service from `services/_template` |
-| `make graph` | `design/diagram.excalidraw` → `design/diagram.graph.md` |
-| `make harvest C=<component>` | push a new component back to the template as branch `component/<name>` |
+
+|                                                                                         |                                                                                   |
+| --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `make doctor`                                                                           | read-only environment check                                                       |
+| `make up` / `make down`                                                                 | cluster + platform + `stack.yaml` components (+ `infra/design/`) / delete cluster |
+| `make smoke [C=<component>]`                                                            | component smoke tests (real reads/writes, not just "Running")                     |
+| `make test`                                                                             | unit tests for all services + scripts (no cluster)                                |
+| `make ci`                                                                               | Tilt headless: build + deploy services/pipelines/client, then run `tests/e2e`     |
+| `make dev`                                                                              | Tilt UI at <http://localhost:10350> with rebuild-on-change                          |
+| `make e2e` · `make load [S=loadtest/x.js]` · `make chaos E=<name>` · `make chaos-clear` |                                                                                   |
+| `make new-service N=<name>`                                                             | scaffold a FastAPI service from `services/_template`                              |
+| `make graph`                                                                            | `design/diagram.excalidraw` → `design/diagram.graph.md`                           |
+| `make harvest C=<component>`                                                            | push a new component back to the template as branch `component/<name>`            |
 
 URLs: app `http://localhost:8080` (services at `/api/<service>/…`), `grafana.localhost:8080`
 (admin/admin), `prometheus.localhost:8080`, `chaos.localhost:8080`.
 
 ## Conventions
+
 - **Namespaces:** components in `data`, services + client in `apps`, operators in their own.
 - **Connection contract:** component `<name>` publishes Secret `apps/<name>-conn`; a service lists
   it under `connections:` in `services/<svc>/deploy/values.yaml` and gets env vars `<NAME>_<KEY>`
@@ -72,11 +76,13 @@ URLs: app `http://localhost:8080` (services at `/api/<service>/…`), `grafana.l
   spread via their operator. Design experiments around zones (`chaos/`, `chaos/node-down.sh`).
 - **E2E tests** go through the gateway only (black box); use `eventually()` for async flows.
 - Only one lab cluster runs at a time on this machine (`kind-sdl`); `make down` before switching designs.
+- Docker Desktop: the host cannot reach container IPs; everything is exposed through the gateway's
+  NodePort mapped to `localhost:8080`.
 
 ## Gotchas learned the hard way
+
 - `kubectl run -i` can drop output of fast commands — use `run_once` from `scripts/lib.sh`.
 - NetworkChaos with `direction: to` does nothing for traffic to Services — use `direction: both`
   (details in `chaos/README.md`).
-- Docker Desktop: the host cannot reach container IPs; everything is exposed through the gateway's
-  NodePort mapped to `localhost:8080`.
-- `pnpm` is pinned via `packageManager` in `client/package.json`.
+- Don't bump or remove `packageManager: pnpm@12.3.4` in `client/package.json`: `pnpm` here is a
+  Corepack shim, and any other version makes it try to download pnpm, which fails offline/sandboxed.
