@@ -60,6 +60,13 @@ fi
 
 (cd services && uv lock --quiet) || warn "uv lock failed — run 'cd services && uv lock' later"
 
+# point Claude Code's commands at this clone's kubeconfig/helm/tilt state (absolute paths, so not
+# committed): kubectl/helm run outside the sandbox and would otherwise fall back to ~/.kube/config
+mkdir -p .claude
+(source scripts/env.sh && python3 -c 'import json, os, sys
+print(json.dumps({"env": {k: os.environ[k] for k in sys.argv[1:]}}, indent=2))' \
+  KUBECONFIG HELM_CONFIG_HOME HELM_CACHE_HOME HELM_DATA_HOME TILT_DEV_DIR) > .claude/settings.local.json
+
 git add -A
 git commit -qm "Start design '$name' from template $(git -C "$SDL_ROOT" rev-parse --short HEAD)"
 ok "design '$name' ready at $dest"

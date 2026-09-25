@@ -2,6 +2,9 @@
 .cache/
 .kube/
 
+# per-clone Claude Code settings (absolute paths, written by scripts/new-design.sh)
+.claude/settings.local.json
+
 # python
 __pycache__/
 *.pyc

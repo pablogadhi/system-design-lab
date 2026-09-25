@@ -45,7 +45,7 @@ To build a design from a diagram, run the **`/build-design`** skill (`.claude/sk
 | `make smoke [C=<component>]`                                                            | component smoke tests (real reads/writes, not just "Running")                     |
 | `make test`                                                                             | unit tests for all services + scripts (no cluster)                                |
 | `make ci`                                                                               | Tilt headless: build + deploy services/pipelines/client, then run `tests/e2e`     |
-| `make dev`                                                                              | Tilt UI at <http://localhost:10350> with rebuild-on-change                          |
+| `make dev`                                                                              | Tilt UI at <http://localhost:10350> with rebuild-on-change                        |
 | `make e2e` · `make load [S=loadtest/x.js]` · `make chaos E=<name>` · `make chaos-clear` |                                                                                   |
 | `make new-service N=<name>`                                                             | scaffold a FastAPI service from `services/_template`                              |
 | `make graph`                                                                            | `design/diagram.excalidraw` → `design/diagram.graph.md`                           |
@@ -80,6 +80,11 @@ URLs: app `http://localhost:8080` (services at `/api/<service>/…`), `grafana.l
   NodePort mapped to `localhost:8080`.
 
 ## Gotchas learned the hard way
+
+- Commands that need Docker or the cluster (`make up/ci/e2e/smoke/load/chaos…`, `kubectl`, `helm`,
+  `docker`, `kind`, `tilt`, `k6`) run outside the Claude Code sandbox via `excludedCommands` in
+  `.claude/settings.json`; inside it there is no Docker socket and no host `localhost`. Run them
+  bare: a pipe, `cd`, `&&` chain or redirect keeps the whole call sandboxed and it fails.
 
 - `kubectl run -i` can drop output of fast commands — use `run_once` from `scripts/lib.sh`.
 - NetworkChaos with `direction: to` does nothing for traffic to Services — use `direction: both`

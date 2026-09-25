@@ -1,0 +1,32 @@
+{
+  "sandbox": {
+    "excludedCommands": [
+      "make doctor",
+      "make up",
+      "make down",
+      "make nuke",
+      "make dev",
+      "make ci",
+      "make smoke *",
+      "make e2e",
+      "make load *",
+      "make chaos *",
+      "make chaos-clear",
+      "docker *",
+      "kind *",
+      "ctlptl *",
+      "tilt *",
+      "k6 *",
+      "kubectl *",
+      "helm *"
+    ],
+    "filesystem": { "allowWrite": ["~/.cache/uv"] },
+    "network": {
+      "allowedDomains": [
+        "pypi.org",
+        "files.pythonhosted.org",
+        "registry.npmjs.org"
+      ]
+    }
+  }
+}

@@ -1,12 +1,13 @@
 # Authoring a component
 
-A *component* is a piece of backing infrastructure (Kafka, Redis, Flink, …) that designs select in
+A _component_ is a piece of backing infrastructure (Kafka, Redis, Flink, …) that designs select in
 `stack.yaml`. Components are built **on demand** the first time a design needs one, then harvested
 back into the template (`scripts/harvest-component.sh`) so the next design reuses them.
 
 `postgres/` is the reference implementation — copy its shape.
 
 ## Layout
+
 ```
 infra/components/<name>/
 ├── install.sh        # usage: install.sh <profile>   — idempotent; installs operator + instance + conn secret
@@ -18,9 +19,11 @@ infra/components/<name>/
 │   └── ha/           # replicated across zones — for failure experiments
 └── base/             # shared manifests (kustomize) — or values/ for helm-only components
 ```
+
 Name: lower-kebab, the technology (`kafka`, `redis`, `elasticsearch`, `flink`, `temporal`, `aws`).
 
 ## Rules
+
 1. **Scripts** start with `source "$(dirname "$0")/../../../scripts/lib.sh"` and use its helpers:
    `kc` (kubectl on the lab context), `helm_repo`, `helm_install <release> <chart> <version> <ns>`,
    `wait_for`, `run_once <ns> <image> <cmd…>`, `log/ok/warn/die`.
@@ -38,31 +41,34 @@ Name: lower-kebab, the technology (`kafka`, `redis`, `elasticsearch`, `flink`, `
    HTTPRoute with `parentRefs: [{name: sdl, namespace: envoy-gateway-system}]`.
 
 ## The connection contract (most important)
+
 Every component publishes **one Secret named `<name>-conn` in namespace `apps`**, labelled
 `sdl.dev/conn: "true"`, with UPPER_SNAKE keys. Services mount it by listing the component in
 `connections:` of their deploy values; the chart turns it into env vars prefixed `<NAME>_`.
 
-| Component | Secret | Keys (→ env) |
-|---|---|---|
-| postgres | `postgres-conn` | `HOST READ_HOST PORT USER PASSWORD DATABASE URL READ_URL` → `POSTGRES_URL`, … |
-| kafka | `kafka-conn` | `BOOTSTRAP_SERVERS` (+ `SECURITY_PROTOCOL` if not PLAINTEXT) |
-| redis | `redis-conn` | `URL` (`redis://…`), `MODE` (`standalone`/`cluster`/`sentinel`), `HOST`, `PORT` |
-| elasticsearch | `elasticsearch-conn` | `URL`, `USERNAME`, `PASSWORD` |
-| cassandra | `cassandra-conn` | `CONTACT_POINTS`, `PORT`, `LOCAL_DC`, `USERNAME`, `PASSWORD`, `KEYSPACE` |
-| temporal | `temporal-conn` | `ADDRESS` (`host:7233`), `NAMESPACE` |
-| flink | `flink-conn` | `REST_URL` (jobs usually don't need it; pipelines deploy FlinkDeployments) |
-| aws | `aws-conn` | `ENDPOINT_URL`, `REGION`, `ACCESS_KEY_ID`, `SECRET_ACCESS_KEY` (dummy) |
+| Component     | Secret               | Keys (→ env)                                                                    |
+| ------------- | -------------------- | ------------------------------------------------------------------------------- |
+| postgres      | `postgres-conn`      | `HOST READ_HOST PORT USER PASSWORD DATABASE URL READ_URL` → `POSTGRES_URL`, …   |
+| kafka         | `kafka-conn`         | `BOOTSTRAP_SERVERS` (+ `SECURITY_PROTOCOL` if not PLAINTEXT)                    |
+| redis         | `redis-conn`         | `URL` (`redis://…`), `MODE` (`standalone`/`cluster`/`sentinel`), `HOST`, `PORT` |
+| elasticsearch | `elasticsearch-conn` | `URL`, `USERNAME`, `PASSWORD`                                                   |
+| cassandra     | `cassandra-conn`     | `CONTACT_POINTS`, `PORT`, `LOCAL_DC`, `USERNAME`, `PASSWORD`, `KEYSPACE`        |
+| temporal      | `temporal-conn`      | `ADDRESS` (`host:7233`), `NAMESPACE`                                            |
+| flink         | `flink-conn`         | `REST_URL` (jobs usually don't need it; pipelines deploy FlinkDeployments)      |
+| aws           | `aws-conn`           | `ENDPOINT_URL`, `REGION`, `ACCESS_KEY_ID`, `SECRET_ACCESS_KEY` (dummy)          |
 
 Because names are fixed by convention, the architect writes contracts and services code against them
-*before* the component exists. Hosts are always FQDNs (`<svc>.data.svc.cluster.local`) because the
+_before_ the component exists. Hosts are always FQDNs (`<svc>.data.svc.cluster.local`) because the
 secret is consumed from another namespace. If you need a key not listed here, add it to this table.
 
 ## Design-specific setup is NOT part of the component
+
 Topics, buckets, keyspaces, indices, extra databases belong to the design: put them in
 `infra/design/` (applied by infra-builder after components are up, e.g. Strimzi `KafkaTopic` CRs,
 a Job that creates buckets). The component stays reusable across designs.
 
 ## Done means
+
 - `infra/components/<name>/install.sh <profile>` works on a fresh `make up` and when re-run
 - `make smoke C=<name>` passes for both profiles you ship
 - README documents profiles, the contract keys, and 1–3 failure experiments worth running

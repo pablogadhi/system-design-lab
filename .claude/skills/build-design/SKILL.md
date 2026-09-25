@@ -9,6 +9,7 @@ You are the **orchestrator** (and the architect). Builders are subagents defined
 `.claude/agents/`. Read `CLAUDE.md` before starting. Work in phases; don't skip checkpoints.
 
 ## Phase 0 — Preflight
+
 1. `make doctor`. If anything is missing, stop and tell the user (never install tools).
 2. Need `design/diagram.excalidraw` + `design/diagram.png`. If the user only has an SVG or PNG,
    ask them to export the `.excalidraw` too (File → Save to…); a PNG alone works but wiring is guessed.
@@ -16,21 +17,24 @@ You are the **orchestrator** (and the architect). Builders are subagents defined
    The graph gives exact wiring; the image gives layout and meaning the JSON lacks.
 
 ## Phase 1 — Architect (you, interactively)
+
 Read `design/SPEC_TEMPLATE.md`, `infra/components/AUTHORING.md` (connection contract table),
 `infra/components/PLAYBOOK.md`, and list `infra/components/` (what already exists).
 
 Map the diagram to the lab's building blocks:
-| Diagram box | Lab building block |
-|---|---|
-| API gateway / load balancer | Envoy Gateway (already there) + K8s Service — **not** a service to build; rate limits/auth go in `infra/design/` policies |
-| "X service", "Y API", receivers | FastAPI service (public or internal) — replicas instead of drawn pools |
-| queue / stream / broker cluster | component (kafka, aws SQS…) + topics in `infra/design/` |
-| stream processor / aggregator | pipeline (Flink) or a consumer worker service if trivial |
-| DB / cache / search / object store | component + schema in `contracts/db/` |
-| workflow engine | temporal component + worker service |
-| client / user / advertiser | Next.js pages (one per flow) |
+
+| Diagram box                        | Lab building block                                                                                                        |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| API gateway / load balancer        | Envoy Gateway (already there) + K8s Service — **not** a service to build; rate limits/auth go in `infra/design/` policies |
+| "X service", "Y API", receivers    | FastAPI service (public or internal) — replicas instead of drawn pools                                                    |
+| queue / stream / broker cluster    | component (kafka, aws SQS…) + topics in `infra/design/`                                                                   |
+| stream processor / aggregator      | pipeline (Flink) or a consumer worker service if trivial                                                                  |
+| DB / cache / search / object store | component + schema in `contracts/db/`                                                                                     |
+| workflow engine                    | temporal component + worker service                                                                                       |
+| client / user / advertiser         | Next.js pages (one per flow)                                                                                              |
 
 Write, in this order:
+
 1. `design/spec.md` (from `SPEC_TEMPLATE.md`): requirements from the diagram's notes; **laptop
    scale-down table**; components with profiles (`ha` where the design's point is failure behaviour);
    services table; topics/keys/partitions; acceptance flows; load targets; chaos hypotheses derived
@@ -48,7 +52,9 @@ about real ambiguities. Then show a short summary (components, services, flows, 
 **wait for the user's approval of the spec.** Commit: `git add -A && git commit -m "spec: <design>"`.
 
 ## Phase 2 — Build in parallel
+
 Dispatch in **one message** (parallel):
+
 - `infra-builder`: all components + `infra/design/`.
 - `services-builder`: all services + pipelines — or several instances, one per group of services,
   when there are more than ~3 services (give each an explicit list).
@@ -63,12 +69,14 @@ names, topic names). Resolve conflicts by fixing the **contract** (you own it) a
 affected builders (SendMessage to the same agent to keep its context). Commit: `build: <design>`.
 
 ## Phase 3 — Integrate until green
+
 Dispatch `integrator` with the builders' reports. On `STATUS: FAIL`, route each defect to its owner
 (SendMessage to that builder with the defect verbatim), then re-run the integrator. Stop after
 3 rounds without progress and bring the remaining defects to the user with your diagnosis.
 Architect-owned defects (spec/contract wrong) are yours: fix, then re-dispatch.
 
 ## Phase 4 — Results
+
 1. Write `design/RESULTS.md`: what was built (components, services, flows), how to run it
    (`make up && make ci`, URLs), the load and chaos numbers from the integrator, which NFRs held and
    which didn't (with why), and ideas for next experiments.
