@@ -39,7 +39,9 @@ if docker info >/dev/null 2>&1; then
   cpus=$(docker info --format '{{.NCPU}}'); mem=$(docker info --format '{{.MemTotal}}')
   memg=$((mem / 1024 / 1024 / 1024))
   row daemon ok "$(docker info --format '{{.OperatingSystem}}') — ${cpus} CPUs, ${memg} GiB"
-  if [ "$memg" -lt 12 ]; then row memory LOW "kind with 5 nodes + components wants >= 12 GiB for Docker"; fail=1; fi
+  if [ "$memg" -lt 12 ]; then row memory LOW "kind with 5 nodes + components wants >= 12 GiB for Docker"; fail=1
+  elif [ "$memg" -lt 16 ]; then row memory warn "OK for small profiles; several 'ha' components may not fit under 16 GiB"; fi
+  if [ "$cpus" -lt 6 ]; then row cpus warn "under 6 CPUs: image builds, ha components and load tests will be slow"; fi
 else
   row daemon DOWN "docker daemon not reachable (is Docker Desktop / dockerd running? current context: $(docker context show 2>/dev/null))"; fail=1
 fi

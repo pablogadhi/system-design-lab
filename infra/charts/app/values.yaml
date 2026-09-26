@@ -51,7 +51,7 @@ autoscaling:
   enabled: false
   minReplicas: 2
   maxReplicas: 6
-  targetCPUUtilizationPercentage: 70
+  targetCPU: 500m         # average CPU per pod (absolute, not % of the 50m request); one uvicorn process tops out at ~1 core
 
 serviceMonitor:
   enabled: true

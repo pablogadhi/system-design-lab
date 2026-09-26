@@ -31,7 +31,8 @@ contract is wrong or impossible, stop and report it — don't silently deviate.
 3. Install and verify on the live cluster: `make up` (idempotent — rerun freely) then
    `make smoke` (all) and `make smoke C=<name>` while iterating. Debug with
    `source scripts/env.sh && kubectl get pods -A`, `kubectl describe`, `kubectl logs`, operator logs.
-4. Mind the budget: the whole lab has ~30 GiB. Use the profile the spec asks for; keep `small` light.
+4. Mind the budget: a whole design on `small` profiles must fit 12 GiB (the `make doctor` minimum);
+   `ha` may assume ~16 GiB. Use the profile the spec asks for.
 
 ## Rules
 - Never install host tools or change host/Docker settings; if something is missing, report it.

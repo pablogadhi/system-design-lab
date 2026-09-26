@@ -31,8 +31,8 @@ Name: lower-kebab, the technology (`kafka`, `redis`, `elasticsearch`, `flink`, `
    versions (helm search / context7 / release pages) when creating the component — never guess.
 3. **Namespaces:** operators in their own namespace (e.g. `strimzi-system`); instances in `data`.
 4. **Placement:** replicated profiles spread over `topology.kubernetes.io/zone` (topologySpreadConstraints
-   or the operator's rack/zone awareness). Set requests/limits on everything; keep `small` light
-   (the whole lab shares ~30 GiB).
+   or the operator's rack/zone awareness). Set requests/limits on everything. Budget: a whole design on
+   `small` profiles must fit Docker's 12 GiB minimum (`make doctor`); `ha` may assume ~16 GiB.
 5. **No Bitnami** charts/images (moved to a legacy, unmaintained catalog in 2025). Prefer the upstream
    operator (see PLAYBOOK.md), then official images.
 6. **Metrics:** if the component exposes Prometheus metrics, add a ServiceMonitor/PodMonitor (any
