@@ -50,7 +50,7 @@ graph: ## parse design/diagram.excalidraw -> design/diagram.graph.md
 new-service: ## scaffold services/<N> from services/_template (N=<name>)
 	@scripts/new-service.sh $(N)
 
-new-design: ## clone this template into ../designs/<N> (N=<name> [ARGS="--diagram f.excalidraw --png f.png"])
+new-design: ## clone this template into ../<N> (N=<name> [ARGS="--diagram f.excalidraw --png f.png"])
 	@scripts/new-design.sh $(N) $(ARGS)
 
 harvest: ## push infra/components/<C> back to the template as branch component/<C>

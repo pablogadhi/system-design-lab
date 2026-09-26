@@ -44,7 +44,7 @@ pnpm, k6, python3. To use kubectl/helm against the lab from your shell: `source 
 ```bash
 # 1. In Excalidraw: File → Save to… (.excalidraw) and Export image (.png)
 make new-design N=ad-aggregator ARGS="--diagram ~/Downloads/ad.excalidraw --png ~/Downloads/ad.png"
-cd ../designs/ad-aggregator && claude
+cd ../ad-aggregator && claude
 > /build-design
 ```
 

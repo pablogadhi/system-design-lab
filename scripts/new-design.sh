@@ -3,7 +3,7 @@
 #
 #   scripts/new-design.sh <name> [--dir <path>] [--diagram <file.excalidraw>] [--png <file.png>]
 #
-# - clones the template to ../designs/<name> (or --dir); `origin` points back at the template, so
+# - clones the template to ../<name>, next to the template (or --dir); `origin` points back at the template, so
 #   components built in the design can be harvested back (scripts/harvest-component.sh)
 # - removes the sample stack (sample-api, its contract/tests/load test, the sample client page)
 # - copies the diagram in and generates design/diagram.graph.md
@@ -21,7 +21,7 @@ while [ $# -gt 0 ]; do
   esac
 done
 [[ "$name" =~ ^[a-z][a-z0-9-]*$ ]] || die "usage: new-design.sh <kebab-name> [--dir path] [--diagram f.excalidraw] [--png f.png]"
-dest=${dir:-"$(dirname "$SDL_ROOT")/designs/$name"}
+dest=${dir:-"$(dirname "$SDL_ROOT")/$name"}
 [ -e "$dest" ] && die "$dest already exists"
 git -C "$SDL_ROOT" rev-parse HEAD >/dev/null 2>&1 || die "the template has no commits yet"
 [ -z "$(git -C "$SDL_ROOT" status --porcelain)" ] || warn "template has uncommitted changes — they are NOT included in the clone"
