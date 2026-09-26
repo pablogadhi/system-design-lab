@@ -71,4 +71,4 @@ git add -A
 git commit -qm "Start design '$name' from template $(git -C "$SDL_ROOT" rev-parse --short HEAD)"
 ok "design '$name' ready at $dest"
 echo "   next: cd \"$dest\" && claude    then run: /build-design"
-[ -z "$diagram" ] && echo "   (no diagram yet: put diagram.excalidraw + diagram.png in design/)"
+if [ -z "$diagram" ]; then echo "   (no diagram yet: put diagram.excalidraw + diagram.png in design/)"; fi
